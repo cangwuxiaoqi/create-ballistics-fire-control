@@ -1,0 +1,14 @@
+# 默认规则：由 Git 自行判断文本/二进制，仓库里统一存 LF
+* text=auto
+
+# 构建脚本必须钉死行尾 —— Windows 上如果把 gradlew 检出成 CRLF，
+# 别人用 Git Bash / Linux / macOS 跑 ./gradlew 会直接报 "bad interpreter"。
+gradlew   text eol=lf
+*.sh      text eol=lf
+*.bat     text eol=crlf
+
+# 二进制：绝不转换（贴图一旦被当文本转换就会损坏）
+*.jar     binary
+*.png     binary
+*.ogg     binary
+*.zip     binary

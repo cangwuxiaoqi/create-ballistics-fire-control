@@ -1,0 +1,24 @@
+{
+  "type": "create:mechanical_crafting",
+  "accept_mirrored": false,
+  "category": "misc",
+  "key": {
+    "C": { "item": "create:brass_casing" },
+    "s": { "item": "create:brass_sheet" },
+    "R": { "item": "create:transmitter" },
+    "P": { "item": "create:precision_mechanism" },
+    "T": { "item": "create:electron_tube" }
+  },
+  "pattern": [
+    "CCsCC",
+    "CRPRC",
+    "sPTPs",
+    "CRPRC",
+    "CCsCC"
+  ],
+  "result": {
+    "count": 1,
+    "id": "create_ballistics:fire_control_coordinator"
+  },
+  "show_notification": false
+}

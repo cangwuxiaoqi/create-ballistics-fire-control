@@ -1,0 +1,103 @@
+{
+	"credit": "正面（north）朝玩家、背面（south）接应力。结构与 block/fire_control_node.json 完全同构，只是把凹框镜像到了背面：主体占 z=0..15，外面套一圈 z=14..16 的边框，中间留出 1px 深的凹槽。这一圈凹框是必须的——轴的尖端正好停在凹槽所在的 x/y 区域，那里没有任何方块几何，所以既不共面打架（症状是一闪一闪的黑），又能从凹槽里露出轴头。反面教材：用 minecraft:block/cube 这种光板实心立方体，轴会整个埋进去看不见，尖端还会和方块面严丝合缝地 z-fighting。每个元素六个面都写全。",
+	"parent": "minecraft:block/block",
+	"textures": {
+		"0": "create_ballistics:block/cbc_casing",
+		"1": "create_ballistics:block/shaft_face",
+		"front": "create_ballistics:block/fire_control_computer",
+		"particle": "create_ballistics:block/cbc_casing"
+	},
+	"elements": [
+		{
+			"name": "Body",
+			"from": [0, 0, 0],
+			"to": [16, 16, 15],
+			"faces": {
+				"north": {"uv": [0, 0, 16, 16], "texture": "#front"},
+				"east": {"uv": [0, 0, 15, 16], "texture": "#0"},
+				"south": {"uv": [0, 0, 16, 16], "texture": "#1"},
+				"west": {"uv": [1, 0, 16, 16], "texture": "#0"},
+				"up": {"uv": [0, 1, 16, 16], "texture": "#0"},
+				"down": {"uv": [0, 0, 16, 15], "texture": "#0"}
+			}
+		},
+		{
+			"name": "RimBottom",
+			"from": [2, 1, 14],
+			"to": [14, 2, 16],
+			"faces": {
+				"north": {"uv": [2, 14, 14, 15], "texture": "#0"},
+				"south": {"uv": [2, 14, 14, 15], "texture": "#0"},
+				"west": {"uv": [0, 14, 2, 15], "texture": "#0"},
+				"east": {"uv": [14, 14, 16, 15], "texture": "#0"},
+				"up": {"uv": [2, 0, 14, 2], "texture": "#0"},
+				"down": {"uv": [2, 14, 14, 16], "texture": "#0"}
+			}
+		},
+		{
+			"name": "RimTop",
+			"from": [0, 15, 15],
+			"to": [16, 16, 16],
+			"faces": {
+				"north": {"uv": [0, 0, 16, 1], "texture": "#0"},
+				"south": {"uv": [0, 0, 16, 1], "texture": "#0"},
+				"west": {"uv": [0, 0, 1, 1], "texture": "#0"},
+				"east": {"uv": [15, 0, 16, 1], "texture": "#0"},
+				"up": {"uv": [0, 0, 16, 1], "texture": "#0"},
+				"down": {"uv": [0, 15, 16, 16], "texture": "#0"}
+			}
+		},
+		{
+			"name": "RimRight",
+			"from": [14, 1, 15],
+			"to": [16, 15, 16],
+			"faces": {
+				"north": {"uv": [14, 1, 16, 15], "texture": "#0"},
+				"south": {"uv": [0, 1, 2, 15], "texture": "#0"},
+				"west": {"uv": [0, 1, 1, 15], "texture": "#0"},
+				"east": {"uv": [15, 1, 16, 15], "texture": "#0"},
+				"up": {"uv": [14, 0, 16, 1], "texture": "#0"},
+				"down": {"uv": [14, 15, 16, 16], "texture": "#0"}
+			}
+		},
+		{
+			"name": "RimBottomEdge",
+			"from": [0, 0, 15],
+			"to": [16, 1, 16],
+			"faces": {
+				"north": {"uv": [0, 15, 16, 16], "texture": "#0"},
+				"south": {"uv": [0, 15, 16, 16], "texture": "#0"},
+				"west": {"uv": [0, 15, 1, 16], "texture": "#0"},
+				"east": {"uv": [15, 15, 16, 16], "texture": "#0"},
+				"up": {"uv": [0, 0, 16, 1], "texture": "#0"},
+				"down": {"uv": [0, 15, 16, 16], "texture": "#0"}
+			}
+		},
+		{
+			"name": "RimLeft",
+			"from": [0, 1, 15],
+			"to": [2, 15, 16],
+			"faces": {
+				"north": {"uv": [0, 1, 2, 15], "texture": "#0"},
+				"south": {"uv": [14, 1, 16, 15], "texture": "#0"},
+				"west": {"uv": [0, 1, 1, 15], "texture": "#0"},
+				"east": {"uv": [15, 1, 16, 15], "texture": "#0"},
+				"up": {"uv": [0, 0, 2, 1], "texture": "#0"},
+				"down": {"uv": [0, 15, 2, 16], "texture": "#0"}
+			}
+		},
+		{
+			"name": "RimTopInner",
+			"from": [2, 14, 14],
+			"to": [14, 15, 16],
+			"faces": {
+				"north": {"uv": [2, 1, 14, 2], "texture": "#0"},
+				"south": {"uv": [2, 1, 14, 2], "texture": "#0"},
+				"west": {"uv": [0, 1, 2, 2], "texture": "#0"},
+				"east": {"uv": [14, 1, 16, 2], "texture": "#0"},
+				"up": {"uv": [2, 0, 14, 2], "texture": "#0"},
+				"down": {"uv": [2, 14, 14, 16], "texture": "#0"}
+			}
+		}
+	]
+}

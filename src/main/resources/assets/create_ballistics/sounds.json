@@ -1,0 +1,19 @@
+{
+  "cannon_zoom_in": {
+    "sounds": [
+      {
+        "name": "create_ballistics:cannon/cannon_zoom_in",
+        "stream": false
+      }
+    ]
+  },
+  "drone_engine": {
+    "sounds": [
+      {
+        "name": "create_ballistics:drone/drone_engine",
+        "stream": false,
+        "attenuation_distance": 48
+      }
+    ]
+  }
+}

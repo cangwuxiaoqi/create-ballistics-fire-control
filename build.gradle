@@ -1,0 +1,285 @@
+plugins {
+    id 'java-library'
+    id 'net.neoforged.moddev' version '2.0.141'
+    id 'idea'
+}
+
+version = "${mod_version}+mc${minecraft_version}"
+group = mod_group_id
+
+// ---------------------------------------------------------------------------
+// 产物 jar 的文件名 = `[中文显示名][英文显示名]-<mod_version>+mc<mc版本>.jar`：
+//     [机械动力火炮：火控计算弹道学]Create_Big_Cannons_Fire_Control_Ballistics-2.0.0+mc1.21.1.jar
+//
+// ⚠️ 两个名字都**只有一处源头**，这里只是拼装：
+//   · 中文名 ← mods.toml 模板的 displayName（游戏里显示的那个名字，纯名字不带括号），
+//     这里给它套上中括号当前缀。build.gradle 本身刻意不写非 ASCII
+//     （gradle.properties 更是明令禁止 —— 它是 ISO-8859-1；模板是显式按 UTF-8 读的）。
+//   · 英文名 ← `lang/en_us.json` 里 `itemGroup.create_ballistics` 的值
+//     （= 游戏内英文显示名）。**不要在这里另写一份英文名**，否则迟早对不上。
+//     文件名里不能出现 `:`（Windows 非法）与空格，所以做一次 slug 化：
+//     去掉冒号、空白换成下划线。
+//
+// ⚠️ 文件名里的英文部分**不是 modId**：modId 始终是 `create_ballistics`，
+//    改这个只影响 mods/ 里那个文件夹显示什么名字。
+// ⚠️ 覆盖进 mods/ 时必须**删掉旧名字那份**：同 modId 两份 jar 会直接崩（Duplicate mod）。
+// ---------------------------------------------------------------------------
+def displayNameLine = file('src/main/templates/META-INF/neoforge.mods.toml')
+        .getText('UTF-8').readLines()
+        .find { it.trim().startsWith('displayName') }
+def displayName = displayNameLine == null ? null
+        : displayNameLine.split('=', 2)[1].trim().replaceAll('^"|"$', '')
+
+// 英文名：从 en_us.json 里读物品组名（正则够用，不引 JSON 解析器）
+def enName = null
+def enLangFile = file('src/main/resources/assets/create_ballistics/lang/en_us.json')
+if (enLangFile.isFile()) {
+    def m = (enLangFile.getText('UTF-8') =~ /"itemGroup\.create_ballistics"\s*:\s*"([^"]+)"/)
+    if (m.find()) {
+        enName = m.group(1).replace(':', '').replaceAll(/\s+/, '_').replaceAll(/_+/, '_')
+    }
+}
+if (enName == null) {
+    logger.lifecycle("[命名] en_us.json 里没读到英文物品组名，jar 文件名的英文部分退回 ${rootProject.name}")
+    enName = rootProject.name
+}
+
+if (displayName) {
+    // 万一有人在模板里自己加了括号，这里先剥掉，免得出现 [[名字]]
+    base {
+        archivesName = "[${displayName.replaceAll('^\\[|\\]$', '')}]${enName}"
+    }
+} else {
+    // 读不到就退回原名 —— 只影响文件名，绝不让构建失败
+    logger.lifecycle("[命名] mods.toml 模板里没读到 displayName，jar 用原名 ${enName}")
+}
+
+java {
+    toolchain {
+        languageVersion = JavaLanguageVersion.of(21)
+    }
+}
+
+neoForge {
+    version = project.neo_version
+
+    parchment {
+        mappingsVersion = '2024.11.17'
+        minecraftVersion = '1.21.1'
+    }
+
+    runs {
+        client {
+            client()
+            jvmArgument '-Xmx4G'
+        }
+        server {
+            server()
+            programArgument '--nogui'
+            jvmArgument '-Xmx2G'
+        }
+    }
+
+    mods {
+        "${mod_id}" {
+            sourceSet sourceSets.main
+        }
+    }
+}
+
+repositories {
+    mavenCentral()
+    maven { url = 'https://maven.createmod.net' }
+}
+
+// ---------------------------------------------------------------------------
+// 纯数学验证：不启动 Minecraft，直接跑弹道解算器的自检。
+// 解算核心（net.createballistics.ballistic）刻意不依赖 Level / Minecraft，
+// 因此可以在普通 JVM 里验证物理与求解逻辑本身。
+// ---------------------------------------------------------------------------
+tasks.register('verifySolver', JavaExec) {
+    group = 'verification'
+    description = 'Run the ballistic solver self-check without booting Minecraft'
+    classpath = sourceSets.main.runtimeClasspath
+    mainClass = 'net.createballistics.ballistic.SolverSelfCheck'
+    jvmArgs '-Dstdout.encoding=UTF-8', '-Dstderr.encoding=UTF-8'
+}
+
+// ---------------------------------------------------------------------------
+// 依赖：Create / CBC / RPL 都不在公共 Maven 上，直接链接整合包 mods 里那份 jar，
+// 版本天然对齐。
+// Create 的 jarJar 内嵌了 Flywheel / Ponder / Registrate，javac 看不见嵌套 jar，
+// 所以这三个已抽出到 libs/ 单独引入。
+//
+// cbc_going_ballistic 与 cbc_at(先进技术) 都是「可选依赖」：只做编译期链接，
+// **绝不能**进运行时类路径，否则没装它们的整合包会在加载期崩（运行时用 ModList 判断）。
+//
+// ⚠️ cbc_at 非有不可：它在 MountedBigCannonContraption.fireShot 的 shoot(...) 调用点上
+// 用 @WrapOperation 把初速换成自己的 CustomPropellantContext.getVelocity()，
+// 而 going_ballistic 在**同一个点**用 @Redirect 把那个值当"装药强度"再算一次 Robins。
+// 不复刻 cbc_at 这一步，解算出来的初速会偏高 37%（实测 13.0 vs 真实 9.5）。
+//
+// ---------------------------------------------------------------------------
+// Sable（航空学/物理结构）—— 同样是「可选依赖」，只做编译期链接，运行期用 ModList 判断。
+//
+// ⚠️⚠️ **光放主 jar 不够**：我们要用的 `Pose3dc` / `SubLevelAccess` / `ActiveSableCompanion`
+// 都在 **JarJar 嵌套 jar** 里（`META-INF/jarjar/sable-companion-common-*.jar`）——
+// javac 看不见嵌套 jar，平扫 mods/*.jar 也找不到这些类。
+// 所以那三个内嵌 jar 已抽出到 libs/ 单独引入（早先查"某个类在不在"时就在这里误判过一次）。
+//
+// ⚠️ 抽出的是**原样副本**，不要改动；升级 Sable 时这几个文件要一起换。
+// ---------------------------------------------------------------------------
+dependencies {
+    compileOnly files(
+            'libs/create-1.21.1-6.0.10.jar',
+            'libs/flywheel-neoforge-1.21.1-1.0.6.jar',
+            'libs/ponder-neoforge-1.0.82+mc1.21.1.jar',
+            'libs/Registrate-MC1.21-1.3.0+67.jar',
+            'libs/createbigcannons-5.11.7+mc.1.21.1.jar',
+            'libs/ritchiesprojectilelib-2.1.2+mc.1.21.1-neoforge.jar',
+            'libs/cbc_going_ballistic-0.3.1.jar',
+            'libs/cbc_at-0.1.4c.jar',
+            // GeckoLib：MIT 许可的独立动画库（与我们的 GPL-3.0 兼容）。
+            // 这里只是**编译期链接**；运行期由我们**内嵌的那一份兜底**（见文件末尾的 JarJar 那段）。
+            "libs/geckolib-neoforge-1.21.1-${geckolib_version}.jar",
+            // Sable：主 jar + 它 JarJar 内嵌的三份（companion 里有 Pose3dc，非有不可）。
+            'libs/sable-neoforge-1.21.1-2.0.5.jar',
+            'libs/sable-companion-1.21.1-1.6.0.jar',
+            'libs/sable-rapier-1.21.1-2.0.5.jar',
+            'libs/veil-neoforge-1.21.1-4.3.2.jar'
+    )
+}
+
+// 展开 src/main/templates 里的 ${...} 占位符（官方 MDK 约定）
+// ⚠️ displayName 与 description 的**中文部分不在这里替换** —— 它们直接写在模板里
+//    （gradle.properties 是 ISO-8859-1，放不了非 ASCII）。
+var generateModMetadata = tasks.register('generateModMetadata', ProcessResources) {
+    var replaceProperties = [
+            minecraft_version      : minecraft_version,
+            minecraft_version_range: minecraft_version_range,
+            neo_version            : neo_version,
+            neo_version_range      : neo_version_range,
+            loader_version_range   : loader_version_range,
+            mod_id                 : mod_id,
+            mod_license            : mod_license,
+            mod_version            : mod_version,
+            mod_authors            : mod_authors,
+            geckolib_version_range : geckolib_version_range,
+    ]
+    inputs.properties replaceProperties
+    expand replaceProperties
+    from 'src/main/templates'
+    into 'build/generated/sources/modMetadata'
+}
+sourceSets.main.resources.srcDir generateModMetadata
+neoForge.ideSyncTask generateModMetadata
+
+tasks.withType(JavaCompile).configureEach {
+    options.encoding = 'UTF-8'
+}
+
+tasks.named('processResources', ProcessResources).configure {
+    // 资源里含中文 lang 与 PNG，禁止做占位符展开，避免破坏二进制
+    filteringCharset = 'UTF-8'
+}
+
+// ---------------------------------------------------------------------------
+// JarJar：把 GeckoLib 内嵌进本模组的 jar，玩家就不必再单独安装它。
+//
+// 契约是 `META-INF/jarjar/<jar>` + `META-INF/jarjar/metadata.json` —— 由 NeoForge 在
+// 模组发现阶段读取，**跟我们用什么工具写出它无关**。运行期语义（JarJar 选择器）：
+//   场上已有别的 geckolib、且版本落在 range 内 ⇒ **跳过内嵌那份、用人家的**；
+//   否则 ⇒ 加载我们内嵌的这份。
+// ⚠️⇒ 所以内嵌版本必须 ≤ range 下界，而且 **mods.toml 里那条依赖的 range 必须与
+//    metadata.json 的 range 逐字一致** —— 两边不一致会出现"toml 满足了、选择器没满足"
+//    ⇒ 又去加载一份同 modid ⇒ **Duplicate mod 崩溃**。
+//    mods.toml 那边由 gradle.properties 的 geckolib_version_range 填；metadata.json 是
+//    **静态文件**（这样它不可能被构建接线"悄悄漏掉"），两者的一致性由下面那个
+//    `verifyJarJarMetadata` 任务**硬校验**（不一致 = 构建失败，见文件末尾）。
+//
+// ⚠️ 为什么不用 ModDevGradle 自带的 jarJar 任务：
+//   它要求被内嵌的 jar 有显式 Java 模块名，否则报 "Please set either
+//   'Automatic-Module-Name' in the Jar manifest, or make it an explicit Java module."
+//   而 GeckoLib 的 MANIFEST 里没有这一项 ⇒ 要么改那份 jar（那就不再是"逐字节未修改"，
+//   也说不清改动是否影响其行为），要么自己产出这份元数据。
+//   这里选后者：格式抄自卓越前线 jar 里那份实物（`META-INF/jarjar/metadata.json`）。
+//
+// ⚠️ 内嵌的那份 jar **不许改动**：libs/geckolib-neoforge-1.21.1-4.7.5.jar 与
+//    GeckoLib 官方发布逐字节一致（SHA256 已核对），MIT 许可要求随副本带版权与许可声明 ——
+//    它的 `LICENSE_GeckoLib 4` 就在 jar 根目录里，跟着一起分发。
+// ---------------------------------------------------------------------------
+// ⚠️ metadata.json 刻意写成**静态资源**（src/main/resources/META-INF/jarjar/metadata.json），
+//    而不是"构建时生成"。原因：本项目的实测记录是 —— 在 jar 任务里写 `from(生成任务)`、
+//    或者 `sourceSets.main.resources.srcDir(生成任务)`，**两种隐式接线都不会触发那个任务**：
+//    文件既没生成、也没进包，而 `build` **照常成功**（会静默丢东西的写法，别再试）。
+//    静态文件的代价是版本号在这里又出现了一次，所以下面配了一道硬闸。
+//
+
+// ---------------------------------------------------------------------------
+// GPLv3 §6：分发二进制（jar）时必须随附许可全文 —— 别人拿到 jar 就该能看到。
+// 光在源码根目录放 LICENSE 不够，它不会自动进 jar。
+// NOTICE 是第三方材料（卓越前线 / GeckoLib）的出处声明，抄进资产时同步维护。
+// ---------------------------------------------------------------------------
+tasks.named('jar', Jar).configure {
+    from('LICENSE')
+    from('NOTICE')
+    from("libs/geckolib-neoforge-1.21.1-${geckolib_version}.jar") {
+        into 'META-INF/jarjar'
+    }
+    // metadata.json 不在这里 from —— 它是 src/main/resources/META-INF/jarjar/metadata.json，
+    // 由 processResources 当普通资源带进包（原因见上面那段注释）。
+}
+
+// ---------------------------------------------------------------------------
+// JarJar 元数据的硬闸：metadata.json 的内容必须与 gradle.properties 对得上。
+// 并进 `check` ⇒ 每次 `build` 都会跑。不一致就直接构建失败 —— 因为它的后果是
+// 「场上已有旧版 geckolib 时 Duplicate modid 崩溃」，绝不能在运行期才发现。
+// ---------------------------------------------------------------------------
+def jarJarMetaFile = file('src/main/resources/META-INF/jarjar/metadata.json')
+def embeddedGeckolibJar = file("libs/geckolib-neoforge-1.21.1-${geckolib_version}.jar")
+def expectedGeckolibVersion = geckolib_version
+def expectedGeckolibRange = geckolib_version_range
+
+tasks.register('verifyJarJarMetadata') {
+    group = 'verification'
+    description = '硬校验 JarJar 的 metadata.json 与 gradle.properties 一致（不一致 = 构建失败）'
+    inputs.files(jarJarMetaFile)
+    inputs.property 'geckolib_version', expectedGeckolibVersion
+    inputs.property 'geckolib_version_range', expectedGeckolibRange
+    outputs.upToDateWhen { false }
+    doLast {
+        def problems = []
+        if (!embeddedGeckolibJar.isFile()) {
+            problems << "找不到要内嵌的 jar: ${embeddedGeckolibJar}"
+        }
+        def jars
+        try {
+            jars = new groovy.json.JsonSlurper().parse(jarJarMetaFile).jars
+        } catch (Exception e) {
+            throw new GradleException("JarJar 元数据自检失败：${jarJarMetaFile} 不是合法 JSON —— ${e.message}")
+        }
+        if (jars == null || jars.size() != 1) {
+            problems << "metadata.json 应当只列 1 个内嵌 jar，实际 ${jars == null ? 'null' : jars.size()} 个"
+        } else {
+            def j = jars[0]
+            if (j?.version?.range != expectedGeckolibRange) {
+                problems << "range 不一致: metadata.json = ${j?.version?.range} / gradle.properties = ${expectedGeckolibRange}"
+            }
+            if (j?.version?.artifactVersion != expectedGeckolibVersion) {
+                problems << "artifactVersion 不一致: metadata.json = ${j?.version?.artifactVersion} / gradle.properties = ${expectedGeckolibVersion}"
+            }
+            def expectedPath = "META-INF/jarjar/${embeddedGeckolibJar.name}"
+            if (j?.path != expectedPath) {
+                problems << "path 与将要内嵌的 jar 对不上: metadata.json = ${j?.path} / 实际 = ${expectedPath}"
+            }
+        }
+        if (!problems.isEmpty()) {
+            throw new GradleException("JarJar 元数据自检失败：\n  - " + problems.join("\n  - "))
+        }
+        logger.lifecycle("[verifyJarJarMetadata] OK — geckolib ${expectedGeckolibVersion}，range ${expectedGeckolibRange}，内嵌 ${embeddedGeckolibJar.name}")
+    }
+}
+
+tasks.named('check').configure {
+    dependsOn 'verifyJarJarMetadata'
+}

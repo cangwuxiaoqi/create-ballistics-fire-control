@@ -1,0 +1,16 @@
+{
+  "jars": [
+    {
+      "identifier": {
+        "group": "software.bernie.geckolib",
+        "artifact": "geckolib-neoforge-1.21.1"
+      },
+      "version": {
+        "range": "[4.7.5,5.0.0)",
+        "artifactVersion": "4.7.5"
+      },
+      "path": "META-INF/jarjar/geckolib-neoforge-1.21.1-4.7.5.jar",
+      "isObfuscated": false
+    }
+  ]
+}

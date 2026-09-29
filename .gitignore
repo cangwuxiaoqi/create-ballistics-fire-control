@@ -1,0 +1,40 @@
+# ===========================================================================
+# ⚠️⚠️ 这个 .gitignore 里最要紧的是「第三方二进制」那一段 —— 那是许可问题，不是整洁问题。
+# ===========================================================================
+
+# ---- 构建产物 / 缓存 ----
+build/
+.gradle/
+run/
+logs/
+
+# ---- ⚠️ 第三方 mod 的 jar：**绝对不能进公开仓库** ----
+# libs/ 里全是别人的 mod jar，许可各不相同，其中：
+#   · cbc_going_ballistic / cbc_at —— 声明 All Rights Reserved
+#   · sable（及其 companion / rapier）—— PolyForm Shield（禁止竞争性使用）
+# 把它们推到公开仓库 = 未经授权再分发。构建者请自行下载，清单见 libs/README.md。
+# （注意：`libs/README.md` 本身要提交，所以这里只排除 *.jar）
+libs/*.jar
+
+# ---- ⚠️ 别人的封面素材 ----
+# tools/cover_refs/ 是别的模组封面截图的参考底图；用它合成出的 cover_bg_480x300.png
+# 与它同源，同样不宜再分发。
+tools/cover_refs/
+tools/cover_bg_480x300.png
+
+# ---- 本地的历史快照 / 旧产物（不属于仓库内容）----
+_src_backup_before_diag_strip/
+_src_backup_before_diag_strip_2/
+release_verified/
+
+# ---- IDE ----
+.idea/
+*.iml
+*.ipr
+*.iws
+.vscode/
+
+# ---- 杂项 ----
+*.log
+*.bak
+options.txt.bak*

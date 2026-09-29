@@ -1,0 +1,23 @@
+{
+  "type": "create:mechanical_crafting",
+  "accept_mirrored": false,
+  "category": "misc",
+  "key": {
+    "I": { "item": "create:iron_sheet" },
+    "F": { "item": "create:propeller" },
+    "P": { "item": "create:precision_mechanism" },
+    "R": { "item": "create:transmitter" }
+  },
+  "pattern": [
+    "II II",
+    "IFPFI",
+    " PRP ",
+    "IFPFI",
+    "II II"
+  ],
+  "result": {
+    "count": 1,
+    "id": "create_ballistics:drone"
+  },
+  "show_notification": false
+}

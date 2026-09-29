@@ -1,0 +1,21 @@
+{
+  "type": "create:mechanical_crafting",
+  "accept_mirrored": false,
+  "category": "misc",
+  "key": {
+    "I": { "item": "create:iron_sheet" },
+    "P": { "item": "create:precision_mechanism" },
+    "K": { "item": "minecraft:spyglass" },
+    "R": { "item": "create:transmitter" }
+  },
+  "pattern": [
+    "IIPII",
+    "IKRKI",
+    "IIPII"
+  ],
+  "result": {
+    "count": 1,
+    "id": "create_ballistics:artillery_indicator"
+  },
+  "show_notification": false
+}

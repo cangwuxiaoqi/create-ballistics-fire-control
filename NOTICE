@@ -1,0 +1,213 @@
+机械动力火炮：火控计算弹道学 (Create Big Cannons: Fire Control Ballistics)
+==========================================
+
+    Copyright (C) 2026 Create: Ballistics contributors
+
+    This program is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, version 3.
+
+    This program is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with this program.  If not, see <https://www.gnu.org/licenses/>.
+
+本程序是自由软件：你可以按自由软件基金会发布的 GNU 通用公共许可证第 3 版
+的条款重新发布和/或修改它。
+
+许可全文见同目录的 LICENSE（SPDX 标识：GPL-3.0-only）。
+
+注意：本项目的许可刻意不是 GPL-3.0-or-later。它并入了 GPLv3-only 的第三方材料，
+声明 "or later" 等于承诺一份上游给不出的许可。
+
+NOTE: the license is deliberately GPL-3.0-only and NOT GPL-3.0-or-later, because
+this work incorporates third-party material that is licensed under GPLv3 only.
+
+
+第三方材料 / Third-party material
+---------------------------------
+
+1. 卓越前线 / Superb Warfare
+   作者 / Author : atsuishio
+   许可 / License: GNU General Public License v3.0
+   来源 / Source : https://github.com/atsuishio/superbwarfare
+
+   本项目取用的材料 / Material used:
+
+   - assets/create_ballistics/textures/item/artillery_indicator.png
+       取自其 assets/superbwarfare/textures/item/artillery_indicator.png
+
+   - assets/create_ballistics/models/item/artillery_indicator.json
+       取自其 assets/superbwarfare/models/item/artillery_indicator.json
+       （Blockbench 制作；本模组只把贴图命名空间 superbwarfare: 改成 create_ballistics:）
+
+   - assets/create_ballistics/textures/overlay/spyglass/spyglass.png
+       取自其 assets/superbwarfare/textures/overlay/spyglass/spyglass.png
+       （2100×900，用于火炮指示器举起时的镜筒迭加层）
+
+   - assets/create_ballistics/textures/overlay/spyglass/indicator.png
+       取自其 assets/superbwarfare/textures/overlay/spyglass/indicator.png
+       （64×64，打击目标点标记的图标）
+
+   - assets/create_ballistics/sounds/cannon/cannon_zoom_in.ogg
+       取自其 assets/superbwarfare/sounds/cannon/cannon_zoom_in.ogg
+       （中键报点的音效）
+
+   - assets/create_ballistics/sounds/drone/drone_engine.ogg
+       取自其 assets/superbwarfare/sounds/vehicle/drone/drone_engine.ogg
+       （无人机飞行时的循环「嗡嗡」引擎音；播放方式照它的 VehicleSoundInstance.EngineSound，
+         attenuation_distance 也照它的 48）
+
+   - assets/create_ballistics/textures/item/monitor.png（遥控器物品图标 · 未绑定）
+     assets/create_ballistics/textures/item/monitor_linked.png（同上 · 已绑定，屏幕亮起）
+     assets/create_ballistics/textures/item/drone.png（无人机物品图标）
+       取自其 assets/superbwarfare/textures/item/monitor.png / monitor_linked.png / drone.png
+
+   - assets/create_ballistics/textures/overlay/drone/ 下的 6 张图传 HUD 贴图
+       drone_crosshair.png / drone_fov.png / drone_fov_move.png /
+       drone_marker_frame.png / drone_iff_artillery.png / drone_iff_indicator.png
+       依次取自其 textures/overlay/vehicle/crosshair/third_camera.png、
+       textures/overlay/drone/drone_fov.png、textures/overlay/drone/drone_fov_move.png、
+       textures/overlay/frame/frame.png、
+       textures/overlay/teammate/friendly_artillery.png、textures/overlay/teammate/friendly_indicator.png
+
+      （它那张 textures/overlay/vehicle/land/tv_frame.png「电视取景条纹边框」**未取用**：
+        2026-09-23 实机对比后决定不做这一层，贴图已从本模组中删除。）
+
+   - assets/create_ballistics/models/item/monitor.json / monitor_linked.json
+       照它 assets/superbwarfare/models/item/monitor.json 的写法（overrides + 一条自定义判据）。
+       判据 id 由 superbwarfare:monitor_linked 改成 create_ballistics:linked。
+
+   - assets/create_ballistics/geo/drone.geo.json
+     assets/create_ballistics/animations/drone.animation.json
+     assets/create_ballistics/textures/entity/drone.png
+       取自其 assets/superbwarfare/geo/drone.geo.json、
+       assets/superbwarfare/animations/drone.animation.json、
+       assets/superbwarfare/textures/entity/drone.png
+       （无人机外观：**直接使用它那份 Bedrock 模型**，由 GeckoLib 渲染。
+         三份文件与其原件逐字节一致 —— 已用 SHA256 核对过。）
+
+   - assets/create_ballistics/textures/gui/indicator.png
+       取自其 assets/superbwarfare/textures/gui/artillery_indicator.png，并做过修改：
+       把左边四个输入槽与 X/Y/Z/R 字母涂成底色（本模组那边改成了三颗按钮），
+       另外把按钮底拷了两份到空白处、抹掉对勾，给设置按钮当底图。
+       右侧的弹道示意图与 ✓ 按钮仍直接使用其原图。
+
+2. CBC Ballistics
+   作者 / Author : Felis
+   许可 / License: MIT
+   来源 / Source : https://github.com/Felistown/CBC-Ballistics
+
+   本项目取用的材料 / Material used:
+
+   - assets/create_ballistics/models/block/fire_control_node.json
+       源自其 assets/cbc_ballistics/models/block/cannon_control.json。
+       保留原模型的几何与贴图槽位，补齐了原模型里标成 "#missing" 的面
+       （Minecraft 中未定义的面不渲染会开洞），并在 credit 里注明来源。
+
+   - assets/create_ballistics/models/block/fire_control_computer.json
+     assets/create_ballistics/models/block/fire_control_coordinator.json
+       由上面那个节点模型改写：把正面那圈 1px 凹框镜像到了背面（背面接传动轴）。
+     assets/create_ballistics/models/block/fire_control_node_item.json
+       物品栏模型 = 方块模型 + 一根静态轴（轴的部分照 Create 自己的写法，
+       见 create:block/clutch/item.json）。
+
+   - assets/create_ballistics/textures/block/fire_control_computer.png
+       取自其 assets/cbc_ballistics/textures/block/ballistic_calculator.png
+   - assets/create_ballistics/textures/block/fire_control_coordinator.png
+       取自其 assets/cbc_ballistics/textures/block/artillery_coordinator.png
+   - assets/create_ballistics/textures/block/cbc_casing.png
+     assets/create_ballistics/textures/block/shaft_face.png
+     assets/create_ballistics/textures/block/symbol.png
+       依次取自其同名的 textures/block/ 下三张。
+
+   上述 5 张贴图与本模组内的对应文件**逐字节一致**（SHA256 已核对）。
+   MIT 许可要求的版权与许可声明随本文件及同目录的 LICENSE 一并分发。
+   本模组与其**没有代码层面的依赖关系**（不引用、不链接其任何类）。
+
+3. GeckoLib 4（**内嵌分发** / bundled inside this mod's own jar）
+   作者 / Authors: Gecko, Eliot, AzureDoom, DerToaster, Tslat, Witixin
+   许可 / License: MIT
+   来源 / Source : https://github.com/bernie-g/geckolib
+   内嵌路径 / Bundled at: META-INF/jarjar/geckolib-neoforge-1.21.1-4.7.5.jar
+
+   本模组的**无人机**用 GeckoLib 渲染（实体实现其 `GeoAnimatable`、用其
+   `GeoEntityRenderer`），这样与卓越前线的无人机**同一份模型 + 同一个渲染器**，
+   外观必然一致。
+
+   本模组**把这一份 GeckoLib 内嵌在自己的 jar 里一起分发**（JarJar，即 `META-INF/jarjar/`），
+   这样玩家只装本模组即可，不必再单独安装 GeckoLib。
+
+   - 内嵌的那份 jar **未做任何修改**，与 GeckoLib 官方发布逐字节一致（SHA256 已核对）。
+   - MIT 许可要求的版权与许可声明**随内嵌 jar 一起分发**：见该 jar 根目录的 `LICENSE_GeckoLib 4`。
+   - 运行期**优先使用场上已有的那份**：如果使用者已经装了别的 GeckoLib（独立安装的，
+     或别的模组内嵌的）且版本落在本模组声明的范围内（见 neoforge.mods.toml 与
+     META-INF/jarjar/metadata.json —— 两处范围由构建脚本从同一个属性生成，不会不一致），
+     则用那一份、内嵌的这份不会被加载；想换版本，装一份满足该范围的即可。
+
+
+   本项目另有参照其实现、在本模组自己的包名下自行编写的行为（界面布局与数值、
+   HUD 元素、绑定与报点流程、**无人机操控的按键位掩码 / 灵敏度 / 转向数值与相机机位**等）。
+   那些代码不引用卓越前线的任何类 —— 它没有对外 API。
+
+
+MIT 许可全文 / MIT License text
+================================
+第 2 条（CBC Ballistics）与第 3 条（GeckoLib 4）的材料都以 MIT 许可提供。
+MIT 许可要求把版权声明与许可声明随副本一并分发，两处的声明合并如下：
+
+    Copyright (c) 2026 Felis (CBC Ballistics)
+    Copyright (c) Gecko, Eliot, AzureDoom, DerToaster, Tslat, Witixin (GeckoLib 4)
+
+    Permission is hereby granted, free of charge, to any person obtaining a copy
+    of this software and associated documentation files (the "Software"), to deal
+    in the Software without restriction, including without limitation the rights
+    to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+    copies of the Software, and to permit persons to whom the Software is
+    furnished to do so, subject to the following conditions:
+
+    The above copyright notice and this permission notice shall be included in
+    all copies or substantial portions of the Software.
+
+    THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+    IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+    FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+    AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+    LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+    OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+    SOFTWARE.
+
+
+修改声明 / Modifications（对应 GPL-3.0 第 5a 条）
+=================================================
+下列取自第三方的材料在本模组中**经过修改**。日期为改动发生的日期（年-月-日）：
+
+- assets/create_ballistics/textures/gui/indicator.png            改于 2026-09-22
+    取自卓越前线。把左侧四个输入槽与 X/Y/Z/R 字母涂成底色（本模组那边改成了三颗按钮），
+    并把按钮底图复制两份到空白处、抹掉对勾，用作设置按钮的底图；右侧弹道示意图与
+    ✓ 按钮仍直接使用其原图。
+- assets/create_ballistics/models/item/artillery_indicator.json  改于 2026-09-22
+    取自卓越前线。贴图命名空间由 superbwarfare: 改为 create_ballistics:。
+- assets/create_ballistics/models/item/monitor.json              改于 2026-09-23
+- assets/create_ballistics/models/item/monitor_linked.json       改于 2026-09-23
+    参照卓越前线那份的写法重写；一条自定义判据的 id 由 superbwarfare:monitor_linked
+    改成 create_ballistics:linked。
+- assets/create_ballistics/models/block/fire_control_node.json    改于 2026-09-16
+    取自 CBC Ballistics 的 cannon_control 模型。保留原几何与贴图槽位，
+    补齐了原模型中标记为 "#missing" 的面（Minecraft 中未定义的面不渲染，会开洞），
+    并加注了 credit 说明。
+- assets/create_ballistics/models/block/fire_control_computer.json    改于 2026-09-16
+- assets/create_ballistics/models/block/fire_control_coordinator.json 改于 2026-09-16
+- assets/create_ballistics/models/block/fire_control_node_item.json   改于 2026-09-16
+    以上三个模型由上面那个节点模型改写而成：计算机与协调器把正面那道 1px 凹框镜像到了
+    背面（背面接传动轴）；物品栏模型 = 方块模型 + 一根静态轴（轴的部分照 Create 自己的
+    写法，见 create:block/clutch/item.json）。
+
+**其余**取自第三方的材料均为**未修改的原样副本**（逐字节一致，SHA256 已核对过），
+其来源已在上面第 1、2、3 条中逐项标明。
+
+除上述第三方材料外，本模组其余部分（全部代码、其余模型 / 贴图 / 界面 / 音效）的著作权
+归 Create: Ballistics contributors 所有，同样以 GPL-3.0-only 授权 —— 见同目录的 LICENSE。

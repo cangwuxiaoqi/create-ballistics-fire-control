@@ -1,0 +1,101 @@
+modLoader = "javafml"
+loaderVersion = "${loader_version_range}"
+license = "${mod_license}"
+
+[[mods]]
+modId = "${mod_id}"
+version = "${mod_version}"
+# ⚠️ 中文名直接写在这里（模板按 UTF-8 处理），不要放进 gradle.properties（它是 ISO-8859-1）。
+# ⚠️⚠️ **这就是游戏里显示的那个名字，写纯名字、不要加中括号**（2026-09-26 用户拍板）：
+#     Create 会在**每个方块的 tooltip 底部**加一行模组名（游戏里到处都能看到它），
+#     加了中括号或英文名都会显得啰嗦。要加英文名就写进工程根的 NOTICE 抬头。
+# ⭐ **jar 文件名**（mods 文件夹里那个）另说：build.gradle 会给这个名字**套上中括号**当前缀
+# ⚠️ **2026-09-28 改名**：原名「机械动力火炮：弹道学」，因为市面上已有同名/近名的模组
+#     （避免在百科与整合包里撞名），改成现在这个。**改名只需要动这一行**：
+#     jar 文件名由 build.gradle 从这一行生成，游戏内显示名也读这一行。
+#     ⇒ `[机械动力火炮：火控计算弹道学]create_ballistics-<版本>.jar`。**所以名字只写这一处**。
+displayName = "机械动力火炮：火控计算弹道学"
+authors = "${mod_authors}"
+# ⚠️ 描述也写在这里（中英并列）：同样是因为 gradle.properties 不能放非 ASCII。
+# ⚠️⚠️ 本文件里**除了真正要展开的占位符之外，任何地方（含注释）都不许出现占位符语法**
+#    （美元符号紧跟大括号）—— Groovy 的模板展开会把注释一起扫：
+#    轻则 "Missing property"，重则 "Failed to parse template script"（今天两个都踩了）。
+#    要提到某个占位符就只写 plain 名字，例如 mod_description。
+description = '''机械动力火炮的火控系统：火控计算机解算射击诸元，火控协调器把目标与开火统一发给全网，火控节点负责每一门炮的瞄准与击发。
+Ballistic fire control for Create Big Cannons: a fire control computer solves firing solutions, a coordinator drives the whole battery, and fire control nodes lay and fire each cannon.'''
+
+[[dependencies.${mod_id}]]
+modId = "neoforge"
+type = "required"
+versionRange = "${neo_version_range}"
+ordering = "NONE"
+side = "BOTH"
+
+[[dependencies.${mod_id}]]
+modId = "minecraft"
+type = "required"
+versionRange = "${minecraft_version_range}"
+ordering = "NONE"
+side = "BOTH"
+
+[[dependencies.${mod_id}]]
+modId = "create"
+type = "required"
+versionRange = "[6.0.0,)"
+ordering = "NONE"
+side = "BOTH"
+
+[[dependencies.${mod_id}]]
+modId = "createbigcannons"
+type = "required"
+versionRange = "[5.11.0,)"
+ordering = "AFTER"
+side = "BOTH"
+
+[[dependencies.${mod_id}]]
+modId = "ritchiesprojectilelib"
+type = "required"
+versionRange = "[2.1.0,)"
+ordering = "AFTER"
+side = "BOTH"
+
+# ⚠️ GeckoLib 是**硬依赖**（无人机的实体实现了它的 GeoAnimatable、渲染用它那套 GeoEntityRenderer）——
+# 理由是"外观要和卓越前线一致"：同一份模型 + 同一个渲染器，结果不可能不一样。
+# 它是 MIT 许可的独立动画库（与我们的 GPL-3.0 兼容）。
+# **本模组已经把它内嵌进自己的 jar**（META-INF/jarjar/，见 build.gradle）⇒ 玩家不必单独安装它。
+# ⚠️ 内嵌只是**兜底**：场上已经有别的 geckolib（独立安装的，或别的模组内嵌的）且版本落在下面
+#    这个 range 里时，用人家那份、跳过我们的。
+# ⇒ 这个 range 必须与内嵌的 metadata.json 里的 range **逐字一致**，两边都由
+#    gradle.properties 的 geckolib_version_range 生成 —— 不一致会在"场上已有旧版 geckolib"时
+#    变成 Duplicate modid 崩溃。
+# ⚠️ `ordering = "AFTER"` 不能省：我们的 DroneEntity 在**类加载时**就要解析 GeoAnimatable 这个接口，
+#    晚于它加载会直接 NoClassDefFoundError。
+[[dependencies.${mod_id}]]
+modId = "geckolib"
+type = "required"
+versionRange = "${geckolib_version_range}"
+ordering = "AFTER"
+side = "BOTH"
+
+# 「弹道射程优化」是可选依赖：装了就让解算跟随它的真实弹道，
+# 没装就退回 CBC 原版弹道。运行期用 ModList 判断，绝不硬依赖。
+[[dependencies.${mod_id}]]
+modId = "cbc_going_ballistic"
+type = "optional"
+versionRange = "[0.3.0,)"
+ordering = "AFTER"
+side = "BOTH"
+
+# 访问转换器（目前只有一处）：把 ClientLevel.getEntities() 打开成 public，
+# 好按 UUID 做 O(1) 的实体查找（客户端找无人机）。⚠️ 不能换成 AABB 范围查询 ——
+# 那是扫描包围盒里所有非空小节，相机每帧一次会明显掉帧（2026-09-23 实测）。
+[[accessTransformers]]
+file = "META-INF/accesstransformer.cfg"
+
+# 全 mod 唯一的 Mixin：把火炮仰角上限抬到 89.9°。
+# ⚠️ defaultRequire = 1（见 mixins.json）—— 找不到注入点就**直接崩**，不静默降级。
+#    理由是：CBC 是硬依赖且版本钉死在这个整合包里，注入失败说明 CBC 换了方法，
+#    那时候"炮抬不起来"这种症状极难排查；宁可开不了游戏、一眼看到崩因。
+#    （本 mod 其余所有可选依赖都是反过来的：ModList 判断 + 优雅降级。）
+[[mixins]]
+config = "create_ballistics.mixins.json"

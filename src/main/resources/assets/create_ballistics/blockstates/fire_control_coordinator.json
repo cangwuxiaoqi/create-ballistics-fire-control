@@ -1,0 +1,19 @@
+{
+  "variants": {
+    "facing=east": {
+      "model": "create_ballistics:block/fire_control_coordinator",
+      "y": 90
+    },
+    "facing=north": {
+      "model": "create_ballistics:block/fire_control_coordinator"
+    },
+    "facing=south": {
+      "model": "create_ballistics:block/fire_control_coordinator",
+      "y": 180
+    },
+    "facing=west": {
+      "model": "create_ballistics:block/fire_control_coordinator",
+      "y": 270
+    }
+  }
+}

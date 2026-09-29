@@ -1,0 +1,118 @@
+{
+	"credit": "物品栏/手持用的模型 = 方块模型 + 一根静态轴。物品模型没有渲染器可以补轴，所以轴必须画进模型里——这是 Create 自己的做法：见 create:block/clutch/item.json 与 create:block/creative_motor/item.json，两者都用 create:block/axis + axis_top 摆一根 'Axis' 元素。轴的范围 [6,6,0]..[10,10,16] 与 create:block/clutch/item.json 完全一致（齐平，不凸出）。因为方块主体从 z=1 起，轴仍然会从正面那道 1px 凹框里露出来，不会看不见。注意几何必须与 block/fire_control_node.json 保持一致，改了那边要同步改这边。",
+	"parent": "minecraft:block/block",
+	"textures": {
+		"0": "create_ballistics:block/cbc_casing",
+		"1": "create_ballistics:block/shaft_face",
+		"2": "create_ballistics:block/symbol",
+		"axis": "create:block/axis",
+		"axis_top": "create:block/axis_top",
+		"particle": "create_ballistics:block/cbc_casing"
+	},
+	"elements": [
+		{
+			"name": "Body",
+			"from": [0, 0, 1],
+			"to": [16, 16, 16],
+			"faces": {
+				"north": {"uv": [0, 0, 16, 16], "texture": "#1"},
+				"east": {"uv": [0, 0, 15, 16], "texture": "#0"},
+				"south": {"uv": [0, 0, 16, 16], "texture": "#2"},
+				"west": {"uv": [1, 0, 16, 16], "texture": "#0"},
+				"up": {"uv": [0, 1, 16, 16], "texture": "#0"},
+				"down": {"uv": [0, 0, 16, 15], "texture": "#0"}
+			}
+		},
+		{
+			"name": "Axis",
+			"from": [6, 6, 0],
+			"to": [10, 10, 16],
+			"faces": {
+				"north": {"uv": [6, 6, 10, 10], "rotation": 180, "texture": "#axis_top"},
+				"south": {"uv": [6, 6, 10, 10], "texture": "#axis_top"},
+				"east": {"uv": [6, 0, 10, 16], "rotation": 90, "texture": "#axis"},
+				"west": {"uv": [6, 0, 10, 16], "rotation": 270, "texture": "#axis"},
+				"up": {"uv": [6, 0, 10, 16], "texture": "#axis"},
+				"down": {"uv": [6, 0, 10, 16], "rotation": 180, "texture": "#axis"}
+			}
+		},
+		{
+			"name": "RimBottom",
+			"from": [2, 1, 0],
+			"to": [14, 2, 2],
+			"faces": {
+				"north": {"uv": [2, 14, 14, 15], "texture": "#0"},
+				"south": {"uv": [2, 14, 14, 15], "texture": "#0"},
+				"west": {"uv": [0, 14, 2, 15], "texture": "#0"},
+				"east": {"uv": [14, 14, 16, 15], "texture": "#0"},
+				"up": {"uv": [2, 0, 14, 2], "texture": "#0"},
+				"down": {"uv": [2, 14, 14, 16], "texture": "#0"}
+			}
+		},
+		{
+			"name": "RimTop",
+			"from": [0, 15, 0],
+			"to": [16, 16, 1],
+			"faces": {
+				"north": {"uv": [0, 0, 16, 1], "texture": "#0"},
+				"south": {"uv": [0, 0, 16, 1], "texture": "#0"},
+				"west": {"uv": [0, 0, 1, 1], "texture": "#0"},
+				"east": {"uv": [15, 0, 16, 1], "texture": "#0"},
+				"up": {"uv": [0, 0, 16, 1], "texture": "#0"},
+				"down": {"uv": [0, 15, 16, 16], "texture": "#0"}
+			}
+		},
+		{
+			"name": "RimRight",
+			"from": [14, 1, 0],
+			"to": [16, 15, 1],
+			"faces": {
+				"north": {"uv": [14, 1, 16, 15], "texture": "#0"},
+				"south": {"uv": [0, 1, 2, 15], "texture": "#0"},
+				"west": {"uv": [0, 1, 1, 15], "texture": "#0"},
+				"east": {"uv": [15, 1, 16, 15], "texture": "#0"},
+				"up": {"uv": [14, 0, 16, 1], "texture": "#0"},
+				"down": {"uv": [14, 15, 16, 16], "texture": "#0"}
+			}
+		},
+		{
+			"name": "RimBottomEdge",
+			"from": [0, 0, 0],
+			"to": [16, 1, 1],
+			"faces": {
+				"north": {"uv": [0, 15, 16, 16], "texture": "#0"},
+				"south": {"uv": [0, 15, 16, 16], "texture": "#0"},
+				"west": {"uv": [0, 15, 1, 16], "texture": "#0"},
+				"east": {"uv": [15, 15, 16, 16], "texture": "#0"},
+				"up": {"uv": [0, 0, 16, 1], "texture": "#0"},
+				"down": {"uv": [0, 15, 16, 16], "texture": "#0"}
+			}
+		},
+		{
+			"name": "RimLeft",
+			"from": [0, 1, 0],
+			"to": [2, 15, 1],
+			"faces": {
+				"north": {"uv": [0, 1, 2, 15], "texture": "#0"},
+				"south": {"uv": [14, 1, 16, 15], "texture": "#0"},
+				"west": {"uv": [0, 1, 1, 15], "texture": "#0"},
+				"east": {"uv": [15, 1, 16, 15], "texture": "#0"},
+				"up": {"uv": [0, 0, 2, 1], "texture": "#0"},
+				"down": {"uv": [0, 15, 2, 16], "texture": "#0"}
+			}
+		},
+		{
+			"name": "RimTopInner",
+			"from": [2, 14, 0],
+			"to": [14, 15, 2],
+			"faces": {
+				"north": {"uv": [2, 1, 14, 2], "texture": "#0"},
+				"south": {"uv": [2, 1, 14, 2], "texture": "#0"},
+				"west": {"uv": [0, 1, 2, 2], "texture": "#0"},
+				"east": {"uv": [14, 1, 16, 2], "texture": "#0"},
+				"up": {"uv": [2, 0, 14, 2], "texture": "#0"},
+				"down": {"uv": [2, 14, 14, 16], "texture": "#0"}
+			}
+		}
+	]
+}

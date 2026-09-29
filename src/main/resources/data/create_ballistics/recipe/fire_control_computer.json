@@ -1,0 +1,29 @@
+{
+  "type": "create:mechanical_crafting",
+  "accept_mirrored": false,
+  "category": "misc",
+  "key": {
+    "C": { "item": "create:brass_casing" },
+    "B": { "item": "create:brass_block" },
+    "G": { "item": "create:golden_sheet" },
+    "T": { "item": "create:electron_tube" },
+    "P": { "item": "create:precision_mechanism" },
+    "D": { "item": "minecraft:diamond" },
+    "N": { "item": "minecraft:netherite_ingot" },
+    "S": { "item": "minecraft:nether_star" }
+  },
+  "pattern": [
+    "CCCBCCC",
+    "CGTPTGC",
+    "CTDNDTC",
+    "BPNSNPB",
+    "CTDNDTC",
+    "CGTPTGC",
+    "CCCBCCC"
+  ],
+  "result": {
+    "count": 1,
+    "id": "create_ballistics:fire_control_computer"
+  },
+  "show_notification": false
+}

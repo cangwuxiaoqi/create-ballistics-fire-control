@@ -1,0 +1,103 @@
+{
+	"credit": "Original CBC Ballistics 'cannon_control' model, unchanged. One solid body box (z=1..16) plus the 1px front rim; the shaft socket on the front face is painted into the shaft_face texture. NOTE: this model has NO channel - it must stay solid so that the block is never see-through and the item icon never shows a hole. Every element defines all six faces (an undefined face renders nothing and punches a hole through the block).",
+	"parent": "minecraft:block/block",
+	"textures": {
+		"0": "create_ballistics:block/cbc_casing",
+		"1": "create_ballistics:block/shaft_face",
+		"2": "create_ballistics:block/symbol",
+		"particle": "create_ballistics:block/cbc_casing"
+	},
+	"elements": [
+		{
+			"name": "Body",
+			"from": [0, 0, 1],
+			"to": [16, 16, 16],
+			"faces": {
+				"north": {"uv": [0, 0, 16, 16], "texture": "#1"},
+				"east": {"uv": [0, 0, 15, 16], "texture": "#0"},
+				"south": {"uv": [0, 0, 16, 16], "texture": "#2"},
+				"west": {"uv": [1, 0, 16, 16], "texture": "#0"},
+				"up": {"uv": [0, 1, 16, 16], "texture": "#0"},
+				"down": {"uv": [0, 0, 16, 15], "texture": "#0"}
+			}
+		},
+		{
+			"name": "RimBottom",
+			"from": [2, 1, 0],
+			"to": [14, 2, 2],
+			"faces": {
+				"north": {"uv": [2, 14, 14, 15], "texture": "#0"},
+				"south": {"uv": [2, 14, 14, 15], "texture": "#0"},
+				"west": {"uv": [0, 14, 2, 15], "texture": "#0"},
+				"east": {"uv": [14, 14, 16, 15], "texture": "#0"},
+				"up": {"uv": [2, 0, 14, 2], "texture": "#0"},
+				"down": {"uv": [2, 14, 14, 16], "texture": "#0"}
+			}
+		},
+		{
+			"name": "RimTop",
+			"from": [0, 15, 0],
+			"to": [16, 16, 1],
+			"faces": {
+				"north": {"uv": [0, 0, 16, 1], "texture": "#0"},
+				"south": {"uv": [0, 0, 16, 1], "texture": "#0"},
+				"west": {"uv": [0, 0, 1, 1], "texture": "#0"},
+				"east": {"uv": [15, 0, 16, 1], "texture": "#0"},
+				"up": {"uv": [0, 0, 16, 1], "texture": "#0"},
+				"down": {"uv": [0, 15, 16, 16], "texture": "#0"}
+			}
+		},
+		{
+			"name": "RimRight",
+			"from": [14, 1, 0],
+			"to": [16, 15, 1],
+			"faces": {
+				"north": {"uv": [14, 1, 16, 15], "texture": "#0"},
+				"south": {"uv": [0, 1, 2, 15], "texture": "#0"},
+				"west": {"uv": [0, 1, 1, 15], "texture": "#0"},
+				"east": {"uv": [15, 1, 16, 15], "texture": "#0"},
+				"up": {"uv": [14, 0, 16, 1], "texture": "#0"},
+				"down": {"uv": [14, 15, 16, 16], "texture": "#0"}
+			}
+		},
+		{
+			"name": "RimBottomEdge",
+			"from": [0, 0, 0],
+			"to": [16, 1, 1],
+			"faces": {
+				"north": {"uv": [0, 15, 16, 16], "texture": "#0"},
+				"south": {"uv": [0, 15, 16, 16], "texture": "#0"},
+				"west": {"uv": [0, 15, 1, 16], "texture": "#0"},
+				"east": {"uv": [15, 15, 16, 16], "texture": "#0"},
+				"up": {"uv": [0, 0, 16, 1], "texture": "#0"},
+				"down": {"uv": [0, 15, 16, 16], "texture": "#0"}
+			}
+		},
+		{
+			"name": "RimLeft",
+			"from": [0, 1, 0],
+			"to": [2, 15, 1],
+			"faces": {
+				"north": {"uv": [0, 1, 2, 15], "texture": "#0"},
+				"south": {"uv": [14, 1, 16, 15], "texture": "#0"},
+				"west": {"uv": [0, 1, 1, 15], "texture": "#0"},
+				"east": {"uv": [15, 1, 16, 15], "texture": "#0"},
+				"up": {"uv": [0, 0, 2, 1], "texture": "#0"},
+				"down": {"uv": [0, 15, 2, 16], "texture": "#0"}
+			}
+		},
+		{
+			"name": "RimTopInner",
+			"from": [2, 14, 0],
+			"to": [14, 15, 2],
+			"faces": {
+				"north": {"uv": [2, 1, 14, 2], "texture": "#0"},
+				"south": {"uv": [2, 1, 14, 2], "texture": "#0"},
+				"west": {"uv": [0, 1, 2, 2], "texture": "#0"},
+				"east": {"uv": [14, 1, 16, 2], "texture": "#0"},
+				"up": {"uv": [2, 0, 14, 2], "texture": "#0"},
+				"down": {"uv": [2, 14, 14, 16], "texture": "#0"}
+			}
+		}
+	]
+}

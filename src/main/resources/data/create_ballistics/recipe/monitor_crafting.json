@@ -1,0 +1,19 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "key": {
+    "R": { "item": "create:transmitter" },
+    "P": { "item": "create:precision_mechanism" },
+    "T": { "item": "create:electron_tube" },
+    "I": { "item": "create:iron_sheet" }
+  },
+  "pattern": [
+    " R ",
+    "PTP",
+    "III"
+  ],
+  "result": {
+    "count": 1,
+    "id": "create_ballistics:monitor"
+  }
+}
