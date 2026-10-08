@@ -14,9 +14,10 @@ A Minecraft **1.21.1** / **NeoForge** mod, built as an addon for **Create** and 
 
 ## Download
 
-<!-- TODO: 填上发布页地址 -->
-- CurseForge: _(链接待补)_
-- MC百科: _(链接待补)_
+- **CurseForge** — https://www.curseforge.com/minecraft/mc-mods/create-big-cannons-fire-control-ballistics
+- **MC百科** — _（条目待上线）_
+
+This repository holds the source code; build instructions are below.
 
 ## Building
 

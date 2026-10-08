@@ -50,10 +50,13 @@ A fire control network for Create Big Cannons that computes firing solutions for
 
 ---
 
-## ② 描述页（Description —— 整段粘进去）
+## ② 描述页（Description —— ⭐ **整段复制这一块**）
 
-> CF 的描述框支持 Markdown。下面这版**直接全文粘贴**即可。
-> 末尾的 `Source` 一行等你把仓库建好再补上（⚠️ 见第 ④ 节）。
+> **下面这一整块就是最终版**：英文全文 → `---` 分隔线 → 中文。
+> **一次复制、一次粘贴，别拆开、别调换顺序** —— CF 官方规定 *"Include translations if desired,
+> but **English should be listed first**"*，英文必须在前面。
+> **`Source` 那行已经填好**（用的是你的 GitHub 地址），不用再改。
+> ⚠️ 粘贴前先把编辑器右上角从 **`WYSIWYG`** 切成 **`Markdown`**，否则 `#`、`**` 会原样显示出来。
 >
 > ⚠️ **两个联动模组的名字是核对出来的、不是猜的**（都读自其 jar 里的 `mods.toml`）：
 > · 航空学 = **`Create Aeronautics`**（displayName 原文就是不带冒号的这个写法；作者 **Simulated Team**，这个 jar 是 bundled 版，内含 Simulated / Aeronautics / Offroad）
@@ -126,7 +129,7 @@ Optional: Create Big Cannons: Going Ballistic (realistic ballistics), CBC Advanc
 
 ## Credits and license
 
-This mod is licensed under **GPL-3.0-only**. The source is available at: <YOUR REPOSITORY URL>
+This mod is licensed under **GPL-3.0-only**. The source is available at: https://github.com/cangwuxiaoqi/create-ballistics-fire-control
 
 It reuses art from open source projects, credited file by file in the `NOTICE` file inside the jar:
 
@@ -135,19 +138,7 @@ It reuses art from open source projects, credited file by file in the `NOTICE` f
 - **GeckoLib** (MIT) — used to render the drone, bundled unmodified inside this jar.
 
 Thanks to the authors of Create, Create Big Cannons, CBC Ballistics and Superb Warfare.
-```
 
----
-
-### ②-b 中文部分（**追加在英文描述之后**，照顾国内玩家）
-
-> **CF 官方规定（How to Pass Moderation Review 原文）**：
-> *"Include translations if desired, but **English should be listed first**."*
-> ⇒ **多语言是允许的，但英文必须在前面**。所以顺序是：**英文全文 → `---` 分隔线 → 中文**。
-> ⚠️ 用 `---` 加一条分隔线、并给中文加个二级标题，让审核一眼看出"英文在上、这是翻译"。
-> ⚠️ 官方同一篇还提醒"别写成大段文字墙" —— 中英两份会让篇幅翻倍，所以下面这版中文比英文**略作精简**（信息不减，但更紧凑）。
-
-```markdown
 ---
 
 ## 中文说明（简体中文）
@@ -211,7 +202,9 @@ Thanks to the authors of Create, Create Big Cannons, CBC Ballistics and Superb W
 
 ### 鸣谢与许可
 
-本模组以 **GPL-3.0-only** 分发。它使用了两个开源项目的素材（已在 jar 内 `NOTICE` 中逐文件署名并附许可全文）：**CBC Ballistics**（作者 Felis，MIT）与 **卓越前线 Superb Warfare**（作者 Atsuishio，GPL-3.0）；**GeckoLib**（MIT）内嵌用于渲染无人机。
+本模组以 **GPL-3.0-only** 分发，源码地址：https://github.com/cangwuxiaoqi/create-ballistics-fire-control
+
+它使用了两个开源项目的素材（已在 jar 内 `NOTICE` 中逐文件署名并附许可全文）：**CBC Ballistics**（作者 Felis，MIT）与 **卓越前线 Superb Warfare**（作者 Atsuishio，GPL-3.0）；**GeckoLib**（MIT）内嵌用于渲染无人机。
 
 感谢 Create、Create Big Cannons、CBC Ballistics 与卓越前线的作者。
 ```
@@ -247,14 +240,24 @@ Requires Create Big Cannons. GeckoLib is bundled.
 
 ---
 
-## ④ 项目链接（Project links / 源链接）—— ⚠️ 这一步现在**还欠着**
+## ④ 项目链接（Project links / 源链接）—— ✅ 仓库已建好，只差**填进去**
 
-GPL-3.0 第 6 条要求：**分发 jar 时必须能让拿到它的人拿到源码**。CF 的项目页有 **Source** 链接位，这就是你履行该条的地方。
+**源码仓库（已推送完成）**：
+```
+https://github.com/cangwuxiaoqi/create-ballistics-fire-control
+```
+`refs/heads/main` = `cba3d9972b1d5b2a00b116d162cf084293c37748`，共 **174 个文件**（第三方 jar / 别人的封面参考图 / 构建产物都已 gitignore，一个没进去）。
 
-**⇒ 你需要先把源码放出去**（GitHub 或 Gitee 建一个公开仓库，把 `D:\moddev\cbc_fire_control` 的源码推进去；
-`LICENSE` 与 `NOTICE` 已在工程根目录，直接带上即可），然后：
-- 把它填进 CF 的 **Source** 链接
-- 把描述里 `<YOUR REPOSITORY URL>` 换掉
-- 也留给 MC百科的「相关链接」
+GPL-3.0 第 6 条要求"分发 jar 时必须能让拿到它的人拿到源码"，CF 的项目页有 **Source** 链接位 —— 就是履行该条的地方。
 
-（先上传 CF 也可以，但**在给别人发 jar 之前**把这一步补上 —— 否则"公开分发"这件事在许可上是不完整的。）
+### ✅ 2026-10-08：CurseForge 审核已通过
+
+正式页面：**https://www.curseforge.com/minecraft/mc-mods/create-big-cannons-fire-control-ballistics**
+
+⇒ 下面几处已经/需要体现这个链接：
+1. ✅ **`README.md` 的 Download 段** —— 已填上 CF 链接并推送到仓库
+2. ⬜ **GitHub 仓库页右上角的 About**（这个我没法改，你在网页上点齿轮填）：
+   - **Website** = 上面那个 CF 链接
+   - **Topics** 建议：`minecraft` `neoforge` `create-mod` `create-big-cannons` `fire-control` `ballistics`
+3. ⬜ **MC百科** 条目的「相关链接」—— 等条目上线后填 CF + 仓库两个地址
+4. ⬜ `README.md` 里的 MC百科 一行仍写着「条目待上线」，上线后告诉我补上
