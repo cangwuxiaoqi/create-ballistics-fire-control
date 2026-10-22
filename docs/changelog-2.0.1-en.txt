@@ -1,0 +1,22 @@
+2.0.1 — bug fixes and credits
+
+FIXED
+- Releasing the Artillery Indicator while hovering in creative flight no longer ends with a
+  single-frame FOV pop. Our zoom takeover used the raw FOV option as its base and ignored the
+  FOV modifier vanilla applies while flying (x1.1), so the view stayed about 14% narrower than
+  vanilla until we handed control back, and it snapped wider on that frame.
+- The held Artillery Indicator no longer pops in scale when the zoom is released. Vanilla
+  renders the first-person item through its own FOV pass (GameRenderer#getFov(..., useFOVSetting
+  = false), which uses a flat 70 degree base), while our zoom was writing the same value to both
+  the world pass and the hand pass. Each pass now uses its own base.
+- Nothing else changed: no gameplay, block, item, recipe or balance changes.
+
+CREDITS / LICENSE
+- NOTICE: replaced two dead source links (the Superb Warfare and CBC Ballistics repositories)
+  with reachable references. No licence terms changed: this mod remains GPL-3.0-only, with
+  CBC Ballistics (MIT), Superb Warfare (GPLv3) and GeckoLib (MIT, bundled) credited file by file.
+
+REQUIREMENTS (unchanged)
+- Minecraft 1.21.1 / NeoForge 21.1.0+
+- Create 6.0.0+ / Create Big Cannons 5.11.0+ / Ritchie's Projectile Library 2.1.0+
+- GeckoLib is bundled inside the jar; no separate install needed.

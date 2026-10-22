@@ -258,10 +258,42 @@ public final class IndicatorClientEvents {
         final double optionFov = mc.options.fov().get();
         boolean takeOver = !(zoom <= 1.0001 && !holdingScope);
 
+        // ⭐⭐ 2026-10-16 修复："创造飞行悬停时松手，最后一帧突然变宽"
+        //     ⚠️ 上面那条"只认选项值当基准"漏了**原版自己对 FOV 的修饰** —— 最明显的是
+        //     `getFieldOfViewModifier()` 在**飞行时 ×1.1**（地面是 ×1.0）。
+        //     ⇒ 飞行中我们接管后的稳态值比原版正常值窄约 14%
+        //       （选项 70 vs 原版 77；tan(38.5°)/tan(35°) = 1.136 —— 用户逐帧录像实测平台 **1.144** ✓）；
+        //       等 zoom 跌破 1.0001、我们放手 ⇒ 原版那 1.1 一帧内回来 ⇒ **突跳（实测 −13.8%）** ✓
+        //     ⇒ 地面 modifier=1.0，两边同值 ⇒ 没有这个现象，**与"只在飞行时出现"完全吻合** ✓
+        //     修法：基准 = 选项FOV × 原版修饰 ⇒ zoom=1 时我们算出的值与原版**逐字相同**，
+        //     于是"放手"前后连续 —— 平台期与那一帧台阶一起消失。
+        // ⭐⭐ 2026-10-16 第二修（"松手时手持物品模型弹一下"）：**世界与手部用的是两趟不同的 FOV**。
+        //     依据（反编译源码 GameRenderer#getFov(camera, partialTicks, useFOVSetting)）：
+        //       double d0 = 70.0;                                  // ← 硬编码 70
+        //       if (useFOVSetting) {
+        //           d0 = options.fov().get();                      //   只有"世界"那趟读选项
+        //           d0 *= Mth.lerp(partialTicks, oldFov, fov);     //   飞行 ×1.1 就在这里（⇒ 77）
+        //       }
+        //     调用点：世界 = renderLevel → getFov(camera, f, true)；**手部 = renderItemInHand →
+        //     getFov(camera, partialTick, false)** ⇒ 手部那趟**恒等于 70**，既不读选项也不乘修饰。
+        //     ⇒ 我们对两趟写同一个值，就会写坏一趟：
+        //       · 上一版基准 = 选项FOV/zoom —— 你的选项正好是 70 ⇒ 手部那趟"蒙对" ⇒ 手不抖（纯属巧合）；
+        //       · 加上 ×1.1 之后 = 77/zoom（应付 70）⇒ 手部小了 1.136 倍（实测平台 310 vs 354 = 1.142 ✓）；
+        //         我们放手那一帧，手部那趟回到 70 ⇒ **一帧内放大** ✓；而世界那趟本来就是 77、没变
+        //         ⇒ 正好对上用户报告里"世界逐像素未变、只有手在动" ✓
+        //     ⇒ 修法：按 `event.usedConfiguredFov()` 分岔 ——
+        //        世界那趟：用我们自己的绝对基准（选项FOV × 修饰）—— 幂等、防连乘，保持原设计 ✓
+        //        手部那趟：**直接用入参**（那正是原版算好的 70 那一路；而且它不受第三方
+        //                  `isScoping` 劫持影响 —— 劫持只喂给世界那趟的 `this.fov` 平滑器）
+        final float fovModifier = player == null ? 1.0F : player.getFieldOfViewModifier();
+        final boolean configuredFov = event.usedConfiguredFov();
+        final double incomingFov = event.getFOV();
+        final double baseFov = configuredFov ? optionFov * fovModifier : incomingFov;
+
         if (!takeOver) {
             return;
         }
-        double out = optionFov / zoom;
+        double out = baseFov / zoom;
 
         // ⚠️⚠️ **绝对不要再乘 10**（2026-09-26 大包第三次实测的教训）。
         //
