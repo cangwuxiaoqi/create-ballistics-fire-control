@@ -103,6 +103,25 @@ public final class IndicatorClientEvents {
     /** 上一次推进平滑的时刻（纳秒）；0 = 还没初始化。 */
     private static long zoomLastNanos;
 
+    /**
+     * ⚠️⚠️ <b>"非开镜时"的原版 FOV 修饰缓存</b>（2026-10-27 大包实测定案）。
+     *
+     * <p>{@code AbstractClientPlayer#getFieldOfViewModifier()} 在<b>「第一人称 + isScoping()」</b>时
+     * 会<b>提前 return 0.1F</b>：
+     * <pre>
+     *   } else if (Minecraft.getInstance().options.getCameraType().isFirstPerson() && this.isScoping()) {
+     *       return 0.1F;
+     *   }
+     * </pre>
+     * 而我们**恰好在开镜期间**才需要这个修饰。大整合包里的「哨戒动力臂」把 {@code isScoping()}
+     * 劫持成 true（见类注释）⇒ 直接调用只会拿到 <b>0.1</b> ⇒ 基准被缩成 1/10 ⇒
+     * **画面被放大 10 倍**（大包实测 FOV≈3.4° = 70 × 0.1 ÷ 2.0，设计倍率是 2.0×）。
+     *
+     * <p>⇒ <b>只在返回值"不像开镜值"（&gt; 0.11）时更新缓存</b>，开镜期间沿用开镜前的干净值 ——
+     * 飞行 ×1.1 与移速因子都在缓存里，所以 10-16 那个"飞行时 FOV 跳变"的修复不会被破坏 ✓。
+     */
+    private static float lastCleanFovModifier = 1.0F;
+
     /** 左键按住攒了多少 tick；松手归零。 */
     private static int charge;
     private static int fireCooldown;
@@ -285,10 +304,19 @@ public final class IndicatorClientEvents {
         //        世界那趟：用我们自己的绝对基准（选项FOV × 修饰）—— 幂等、防连乘，保持原设计 ✓
         //        手部那趟：**直接用入参**（那正是原版算好的 70 那一路；而且它不受第三方
         //                  `isScoping` 劫持影响 —— 劫持只喂给世界那趟的 `this.fov` 平滑器）
-        final float fovModifier = player == null ? 1.0F : player.getFieldOfViewModifier();
+        // ⭐⭐ 2026-10-27 第三修（"大包里倍率异常大、约 23×"）：
+        //     `getFieldOfViewModifier()` 在「第一人称 + isScoping()」时会**提前 return 0.1F**
+        //     （AbstractClientPlayer:94-95）。大包里「哨戒动力臂」把 isScoping() 劫持成 true
+        //     ⇒ 直接拿它的返回值当基准 = 70 × 0.1 = 7 ⇒ 再 ÷ 设计倍率 2.0 ⇒ FOV≈3.5°
+        //     （用户逐帧实测 **3.4°** ✓，等于 23× 放大）。
+        //     ⇒ 只在返回值"不像开镜值"时更新缓存，开镜期间用上一次的干净值。
+        final float rawFovModifier = player == null ? 1.0F : player.getFieldOfViewModifier();
+        if (rawFovModifier > 0.11F) {
+            lastCleanFovModifier = rawFovModifier;
+        }
         final boolean configuredFov = event.usedConfiguredFov();
         final double incomingFov = event.getFOV();
-        final double baseFov = configuredFov ? optionFov * fovModifier : incomingFov;
+        final double baseFov = configuredFov ? optionFov * lastCleanFovModifier : incomingFov;
 
         if (!takeOver) {
             return;

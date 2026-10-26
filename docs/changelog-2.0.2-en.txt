@@ -1,0 +1,21 @@
+2.0.2 — fix an over-zoom regression in large modpacks
+
+FIXED
+- In large modpacks, using the Artillery Indicator could zoom far too much (about 23x instead of
+  the intended 2.0x), with a hard single-frame jump at both the start and the end of the zoom.
+  Cause: vanilla's AbstractClientPlayer#getFieldOfViewModifier() returns 0.1F early while
+  "first person + isScoping()". Modpacks that ship a mod which makes isScoping() true for any
+  spyglass-style item therefore fed a 0.1 multiplier into our zoom base in 2.0.1. We now cache the
+  last clean modifier (only updated when the returned value is greater than 0.11) and use that
+  while scoping, so the zoom matches the design value and the single-frame jumps are gone.
+- Both fixes from 2.0.1 are unchanged: the world FOV no longer pops on release while flying, and
+  the held item no longer pops in scale on release.
+
+NOTES
+- No gameplay, block, item, recipe or balance changes.
+- If you are on 2.0.1 and your pack contains a mod that broadens isScoping(), update to 2.0.2.
+
+REQUIREMENTS (unchanged)
+- Minecraft 1.21.1 / NeoForge 21.1.0+
+- Create 6.0.0+ / Create Big Cannons 5.11.0+ / Ritchie's Projectile Library 2.1.0+
+- GeckoLib is bundled inside the jar; no separate install needed.
